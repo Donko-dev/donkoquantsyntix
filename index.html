@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080b">
+<meta name="description" content="DONKO SYNTIX : robot de trading des indices SyntX de Weltrade. Résultats, méthode et alertes. Aucun gain garanti.">
+<title>DONKO SYNTIX</title>
+<link rel="icon" href="donko.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="header-row">
+      <a class="brand" href="#accueil" aria-label="DONKO SYNTIX">
+        <img src="donko.png" alt="DONKO">
+        <span class="brand-text">
+          <span class="brand-name">DONKO SYNTIX</span><br>
+          <span class="brand-tag" data-i18n="tagline"></span>
+        </span>
+      </a>
+      <div class="header-tools">
+        <button id="btn-theme" class="icon-btn" type="button" aria-label="Thème" title="Thème">◐</button>
+        <button id="btn-lang" class="icon-btn" type="button" aria-label="Langue" title="Langue">FR</button>
+        <button id="btn-install" class="icon-btn" type="button" data-i18n-aria="install" aria-label="Installer">⤓</button>
+        <button id="btn-nav" class="icon-btn nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="main-nav">☰</button>
+      </div>
+    </div>
+    <nav class="main-nav" id="main-nav" aria-label="Navigation">
+      <ul>
+        <li><a href="#accueil" data-nav="accueil" data-i18n="nav_home"></a></li>
+        <li><a href="#tableau" data-nav="tableau" data-i18n="nav_dashboard"></a></li>
+        <li><a href="#positions" data-nav="positions" data-i18n="nav_positions"></a></li>
+        <li><a href="#journal" data-nav="journal" data-i18n="nav_journal"></a></li>
+        <li><a href="#methode" data-nav="methode" data-i18n="nav_method"></a></li>
+        <li><a href="#heures" data-nav="heures" data-i18n="nav_hours"></a></li>
+        <li><a href="#alertes" data-nav="alertes" data-i18n="nav_alerts"></a></li>
+        <li><a href="#reglages" data-nav="reglages" data-i18n="nav_settings"></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="disclaimer-bar" data-i18n="disclaimer"></div>
+
+<main>
+
+  <section id="accueil" class="hero">
+    <div class="wrap">
+      <div class="eyebrow">DONKO SYNTIX · Weltrade</div>
+      <h1 data-i18n="hero_title"></h1>
+      <p class="lead" data-i18n="hero_text"></p>
+      <div class="btn-row">
+        <a class="btn" href="#tableau" data-i18n="nav_dashboard"></a>
+        <a class="btn ghost" href="#methode" data-i18n="nav_method"></a>
+      </div>
+      <p class="small muted" style="margin-top:18px;" data-i18n="readonly"></p>
+    </div>
+  </section>
+
+  <section id="tableau">
+    <div class="wrap">
+      <div class="header-row" style="padding:0 0 14px;">
+        <h2 data-i18n="nav_dashboard"></h2>
+        <span id="conn-pill" class="pill" data-i18n="status_unknown"></span>
+      </div>
+      <p class="small muted"><span data-i18n="updated"></span> : <span id="updated" data-i18n="never"></span></p>
+      <div class="grid grid-4" style="margin-top:14px;">
+        <div class="card"><div class="kpi-label" data-i18n="kpi_trades"></div><div class="kpi-value" id="k-trades">—</div></div>
+        <div class="card gold"><div class="kpi-label" data-i18n="kpi_net"></div><div class="kpi-value gold" id="k-net">—</div></div>
+        <div class="card"><div class="kpi-label" data-i18n="kpi_winrate"></div><div class="kpi-value" id="k-wr">—</div></div>
+        <div class="card"><div class="kpi-label" data-i18n="kpi_open"></div><div class="kpi-value" id="k-open">—</div></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:16px;">
+        <div class="card"><div class="kpi-label" data-i18n="kpi_pf"></div><div class="kpi-value" id="k-pf">—</div></div>
+        <div class="card"><div class="kpi-label" data-i18n="kpi_dd"></div><div class="kpi-value" id="k-dd">—</div></div>
+      </div>
+      <p class="small muted" style="margin-top:12px;" data-i18n="stats_note"></p>
+    </div>
+  </section>
+
+  <section id="positions">
+    <div class="wrap">
+      <h2 data-i18n="open_title"></h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-i18n="col_time"></th><th data-i18n="col_market"></th><th data-i18n="col_side"></th><th data-i18n="col_volume"></th><th>SL</th>
+          </tr></thead>
+          <tbody id="open-body"><tr><td colspan="5" class="muted" data-i18n="open_none"></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="journal">
+    <div class="wrap">
+      <h2 data-i18n="journal_title"></h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-i18n="col_time"></th><th data-i18n="col_event"></th><th data-i18n="col_market"></th><th data-i18n="col_side"></th><th data-i18n="col_volume"></th><th data-i18n="col_net"></th>
+          </tr></thead>
+          <tbody id="journal-body"><tr><td colspan="6" class="muted" data-i18n="journal_none"></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="methode">
+    <div class="wrap">
+      <h2 data-i18n="method_title"></h2>
+      <p data-i18n="method_intro"></p>
+      <div class="grid grid-2" style="margin-top:18px;">
+        <div class="step"><h3 data-i18n="m1_title"></h3><p data-i18n="m1_text"></p></div>
+        <div class="step"><h3 data-i18n="m2_title"></h3><p data-i18n="m2_text"></p></div>
+        <div class="step"><h3 data-i18n="m3_title"></h3><p data-i18n="m3_text"></p></div>
+        <div class="step"><h3 data-i18n="m4_title"></h3><p data-i18n="m4_text"></p></div>
+        <div class="step"><h3 data-i18n="m5_title"></h3><p data-i18n="m5_text"></p></div>
+        <div class="step"><h3 data-i18n="m6_title"></h3><p data-i18n="m6_text"></p></div>
+        <div class="step"><h3 data-i18n="m7_title"></h3><p data-i18n="m7_text"></p></div>
+      </div>
+      <div class="warn-box" style="margin-top:10px;" data-i18n="method_warn"></div>
+    </div>
+  </section>
+
+  <section id="heures">
+    <div class="wrap">
+      <h2 data-i18n="hours_title"></h2>
+      <p data-i18n="hours_text"></p>
+      <h2 style="margin-top:28px;" data-i18n="news_title"></h2>
+      <p data-i18n="news_text"></p>
+      <p class="small muted" data-i18n="hours_note"></p>
+      <ul class="link-list">
+        <li><a href="https://www.weltrade.com/fr/trading/syntx-instruments/" target="_blank" rel="noopener" data-i18n="link_syntx"></a></li>
+        <li><a href="https://support.weltrade.com/fr/articles/11799561-types-d-indices-synthetiques" target="_blank" rel="noopener" data-i18n="link_types"></a></li>
+        <li><a href="https://support.weltrade.com/fr/articles/11799844-strategies-de-trading-pour-les-indices-synthetiques" target="_blank" rel="noopener" data-i18n="link_strategies"></a></li>
+        <li><a href="https://www.weltrade.com/" target="_blank" rel="noopener" data-i18n="link_home"></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="alertes">
+    <div class="wrap">
+      <h2 data-i18n="alerts_title"></h2>
+      <p data-i18n="alerts_text"></p>
+      <div class="card"><ul class="alerts" id="alerts-list"><li class="muted" data-i18n="alerts_none"></li></ul></div>
+    </div>
+  </section>
+
+  <section id="reglages">
+    <div class="wrap grid grid-2" style="gap:24px;">
+      <div class="card">
+        <h2 data-i18n="settings_title"></h2>
+        <div class="form-row"><label for="api-url" data-i18n="settings_api"></label><input id="api-url" type="url" inputmode="url" autocomplete="off" placeholder="https://api.votre-domaine.tld"></div>
+        <div class="form-row"><label for="api-token" data-i18n="settings_token"></label><input id="api-token" type="password" autocomplete="off"></div>
+        <div class="btn-row">
+          <button class="btn" id="btn-save" type="button" data-i18n="settings_save"></button>
+          <button class="btn ghost" id="btn-forget" type="button" data-i18n="settings_forget"></button>
+        </div>
+        <p id="settings-msg" class="small" style="margin-top:12px;"></p>
+        <h3 style="margin-top:22px;" data-i18n="account_title"></h3>
+        <p class="small" data-i18n="account_text"></p>
+      </div>
+      <div class="card">
+        <h2 data-i18n="settings_display"></h2>
+        <div class="form-row"><label for="sel-theme" data-i18n="settings_theme"></label>
+          <select id="sel-theme"><option value="dark" data-i18n="theme_dark"></option><option value="light" data-i18n="theme_light"></option></select></div>
+        <div class="form-row"><label for="sel-lang" data-i18n="settings_lang"></label>
+          <select id="sel-lang"><option value="fr">Français</option><option value="en">English</option><option value="de">Deutsch</option></select></div>
+        <div class="form-row"><label for="sel-ccy" data-i18n="settings_ccy"></label>
+          <select id="sel-ccy"><option value="USD">USD</option><option value="EUR">EUR</option><option value="XOF">FCFA (XOF)</option><option value="XAF">FCFA (XAF)</option></select></div>
+        <div class="form-row"><label for="rate-eur" data-i18n="settings_rate_eur"></label>
+          <input id="rate-eur" type="number" step="0.0001" min="0.0001" inputmode="decimal"></div>
+        <p class="small muted" data-i18n="rate_note"></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span class="brand-name">DONKO SYNTIX</span>
+    <p data-i18n="footer_line"></p>
+    <p data-i18n="footer_legal"></p>
+    <div class="footer-links">
+      <a href="https://www.weltrade.com/fr/trading/syntx-instruments/" target="_blank" rel="noopener">Weltrade SyntX</a>
+      <a href="#methode" data-i18n="nav_method"></a>
+      <a href="#heures" data-i18n="nav_hours"></a>
+    </div>
+  </div>
+</footer>
+
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
