@@ -184,3 +184,10 @@ var EXTRA = {
   },
 };
 for (var lg in EXTRA) { Object.assign(window.SYNTIX_I18N[lg], EXTRA[lg]); }
+
+var EMPIRE = {
+  fr: { empire_button: "Découvrir EMPIRE CODE HUB", empire_hint: "Scripts Node.js premium, outils HTML hors ligne et formations IA." },
+  en: { empire_button: "Discover EMPIRE CODE HUB", empire_hint: "Premium Node.js scripts, offline HTML tools and AI training." },
+  de: { empire_button: "EMPIRE CODE HUB entdecken", empire_hint: "Premium-Node.js-Skripte, Offline-HTML-Werkzeuge und KI-Schulungen." },
+};
+for (var le in EMPIRE) { Object.assign(window.SYNTIX_I18N[le], EMPIRE[le]); }

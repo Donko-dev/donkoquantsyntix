@@ -201,3 +201,23 @@ input, select {
 /* Connexion API : masquée sauf accès volontaire (#connexion) */
 .connection-section { display: none; }
 .connection-section.open { display: block; }
+
+/* Bouton EMPIRE CODE HUB : doré, pulsation douce. Animation désactivée si les mouvements sont réduits. */
+.empire-cta-wrap { margin-top: 22px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.empire-cta {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 24px;
+  border-radius: 999px; border: 1px solid #f3d98a;
+  background: linear-gradient(120deg, #f3d98a 0%, #e8c468 45%, #c9a24a 100%);
+  color: #1a1406; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: .02em;
+  text-decoration: none; box-shadow: 0 0 0 0 rgba(232, 196, 104, .55);
+  animation: empire-pulse 2.2s ease-in-out infinite;
+}
+.empire-cta:hover { text-decoration: none; filter: brightness(1.06); }
+@keyframes empire-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(232, 196, 104, .55); transform: scale(1); }
+  70%  { box-shadow: 0 0 0 16px rgba(232, 196, 104, 0); transform: scale(1.03); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 196, 104, 0); transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .empire-cta { animation: none; }
+}
