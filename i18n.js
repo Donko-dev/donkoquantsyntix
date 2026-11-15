@@ -149,3 +149,38 @@ window.SYNTIX_I18N = {
     install: "App installieren", theme_toggle: "Design wechseln", lang_toggle: "Sprache wechseln",
   },
 };
+
+/* Clés ajoutées : connexion API verrouillée, parrainage Weltrade. */
+var EXTRA = {
+  fr: {
+    nav_connect: "Connexion API",
+    connect_title: "Connexion à l'API",
+    connect_text: "Réservé au propriétaire. L'adresse et le jeton sont enregistrés uniquement dans ce navigateur.",
+    api_not_configured: "L'adresse de l'API n'est pas configurée dans ce site.",
+    api_origin_refused: "Adresse refusée : seule l'adresse officielle de l'API est acceptée.",
+    create_account: "Créer un compte Weltrade",
+    referral_disclosure: "Lien de parrainage : si tu ouvres un compte par ce lien, je peux percevoir une commission de Weltrade. Cela n'influence pas le fonctionnement du robot ni ses résultats affichés. Trading comporte des risques de perte en capital.",
+    referral_restrictions: "Weltrade ne propose pas ses services à toutes les résidences : vérifie les conditions d'accès de ton pays avant de t'inscrire.",
+  },
+  en: {
+    nav_connect: "API connection",
+    connect_title: "API connection",
+    connect_text: "Owner only. The address and token are saved only in this browser.",
+    api_not_configured: "The API address is not configured in this site.",
+    api_origin_refused: "Address refused: only the official API address is accepted.",
+    create_account: "Open a Weltrade account",
+    referral_disclosure: "Referral link: if you open an account through this link, I may receive a commission from Weltrade. This does not affect how the robot works or the results shown. Trading involves risks of capital loss.",
+    referral_restrictions: "Weltrade does not offer its services in every country: check the access conditions for your country before signing up.",
+  },
+  de: {
+    nav_connect: "API-Verbindung",
+    connect_title: "Verbindung zur API",
+    connect_text: "Nur für den Eigentümer. Adresse und Token werden nur in diesem Browser gespeichert.",
+    api_not_configured: "Die API-Adresse ist in dieser Seite nicht konfiguriert.",
+    api_origin_refused: "Adresse abgelehnt: Nur die offizielle API-Adresse wird akzeptiert.",
+    create_account: "Weltrade-Konto eröffnen",
+    referral_disclosure: "Empfehlungslink: Wenn du über diesen Link ein Konto eröffnest, kann ich eine Provision von Weltrade erhalten. Das beeinflusst weder die Funktionsweise des Roboters noch die angezeigten Ergebnisse. Trading birgt das Risiko eines Kapitalverlusts.",
+    referral_restrictions: "Weltrade bietet seine Dienste nicht in allen Ländern an: Prüfe die Zugangsbedingungen für dein Land, bevor du dich anmeldest.",
+  },
+};
+for (var lg in EXTRA) { Object.assign(window.SYNTIX_I18N[lg], EXTRA[lg]); }

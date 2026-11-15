@@ -13,6 +13,13 @@
   var XOF_PER_EUR = 655.957; // parité fixe du FCFA (XOF et XAF) avec l'euro
   var ROBOT = "SYNTIX";
 
+  /* ===== À RENSEIGNER AVANT MISE EN LIGNE ===== */
+  // Adresse HTTPS officielle de l'API du VPS (origine seule, sans chemin). Ex. https://api.tondomaine.tld
+  var ALLOWED_API_ORIGIN = "https://api.REMPLACER-PAR-TON-DOMAINE.tld";
+  // Lien de parrainage Weltrade (Programme Partenaire). Vide = bouton masqué.
+  var REFERRAL_URL = "https://track.gowt.me/visit/?bta=72795&brand=weltrade";
+
+
   var state = { lang: "fr", theme: "dark", ccy: "USD", rateEur: 0.92, timer: null, firstLoad: true };
   var deferredInstall = null;
 
@@ -85,8 +92,17 @@
   }
 
   /* ---------- Réseau : GET uniquement ---------- */
+  function originOf(u) {
+    try { return new URL(u).origin; } catch (e) { return ""; }
+  }
+  function apiConfigured() {
+    return ALLOWED_API_ORIGIN.indexOf("REMPLACER") === -1;
+  }
+  // Seule l'adresse officielle est utilisée : une adresse enregistrée autrement est ignorée.
   function cfg() {
-    return { url: (load(KEY.url) || "").replace(/\/+$/, ""), token: load(KEY.token) || "" };
+    var stored = (load(KEY.url) || "").replace(/\/+$/, "");
+    var ok = apiConfigured() && originOf(stored) === ALLOWED_API_ORIGIN;
+    return { url: ok ? stored : "", token: load(KEY.token) || "" };
   }
   function apiGet(path) {
     var c = cfg();
@@ -203,7 +219,7 @@
   function refresh() {
     var c = cfg();
     if (!c.url || !c.token) {
-      setConn("", t("status_unknown"));
+      setConn("", apiConfigured() ? t("status_unknown") : t("api_not_configured"));
       $("updated").textContent = t("never");
       return Promise.resolve();
     }
@@ -266,7 +282,9 @@
     $("btn-save").addEventListener("click", function () {
       var url = $("api-url").value.trim();
       var token = $("api-token").value.trim();
+      if (!apiConfigured()) { $("settings-msg").textContent = t("api_not_configured"); return; }
       if (!/^https:\/\//.test(url)) { $("settings-msg").textContent = t("settings_https"); return; }
+      if (originOf(url) !== ALLOWED_API_ORIGIN) { $("settings-msg").textContent = t("api_origin_refused"); return; }
       if (token.length < 32) { $("settings-msg").textContent = t("settings_token_short"); return; }
       store(KEY.url, url);
       store(KEY.token, token);
@@ -315,6 +333,21 @@
     });
   }
 
+  /* ---------- Connexion API : masquée sauf accès volontaire, et bouton de parrainage ---------- */
+  function openConnectionIfRequested() {
+    var box = $("connexion");
+    if (window.location.hash === "#connexion") box.classList.add("open");
+  }
+  function initConnectionSection() {
+    openConnectionIfRequested();
+    window.addEventListener("hashchange", openConnectionIfRequested);
+    if (REFERRAL_URL) {
+      var a = $("referral-link");
+      a.href = REFERRAL_URL;
+      $("referral").classList.remove("hidden");
+    }
+  }
+
   /* ---------- Démarrage ---------- */
   function init() {
     // Français par défaut ; la langue du téléphone n'est pas utilisée pour éviter un affichage en anglais.
@@ -327,6 +360,7 @@
 
     setTheme(state.theme);
     applyTranslations();
+    initConnectionSection();
     initHeader();
     initNav();
     initSettings();

@@ -39,6 +39,7 @@
         <li><a href="#methode" data-nav="methode" data-i18n="nav_method"></a></li>
         <li><a href="#heures" data-nav="heures" data-i18n="nav_hours"></a></li>
         <li><a href="#alertes" data-nav="alertes" data-i18n="nav_alerts"></a></li>
+        <li><a href="#connexion" data-nav="connexion" data-i18n="nav_connect"></a></li>
         <li><a href="#reglages" data-nav="reglages" data-i18n="nav_settings"></a></li>
       </ul>
     </nav>
@@ -135,6 +136,11 @@
       <h2 style="margin-top:28px;" data-i18n="news_title"></h2>
       <p data-i18n="news_text"></p>
       <p class="small muted" data-i18n="hours_note"></p>
+      <div id="referral" class="hidden" style="margin-top:20px;">
+        <a id="referral-link" class="btn" href="#" target="_blank" rel="noopener sponsored" data-i18n="create_account"></a>
+        <p class="small muted" style="margin-top:10px;" data-i18n="referral_disclosure"></p>
+        <p class="small muted" data-i18n="referral_restrictions"></p>
+      </div>
       <ul class="link-list">
         <li><a href="https://www.weltrade.com/fr/trading/syntx-instruments/" target="_blank" rel="noopener" data-i18n="link_syntx"></a></li>
         <li><a href="https://support.weltrade.com/fr/articles/11799561-types-d-indices-synthetiques" target="_blank" rel="noopener" data-i18n="link_types"></a></li>
@@ -152,10 +158,11 @@
     </div>
   </section>
 
-  <section id="reglages">
-    <div class="wrap grid grid-2" style="gap:24px;">
+  <section id="connexion" class="connection-section">
+    <div class="wrap" style="max-width:560px;">
       <div class="card">
-        <h2 data-i18n="settings_title"></h2>
+        <h2 data-i18n="connect_title"></h2>
+        <p class="small muted" data-i18n="connect_text"></p>
         <div class="form-row"><label for="api-url" data-i18n="settings_api"></label><input id="api-url" type="url" inputmode="url" autocomplete="off" placeholder="https://api.votre-domaine.tld"></div>
         <div class="form-row"><label for="api-token" data-i18n="settings_token"></label><input id="api-token" type="password" autocomplete="off"></div>
         <div class="btn-row">
@@ -166,7 +173,13 @@
         <h3 style="margin-top:22px;" data-i18n="account_title"></h3>
         <p class="small" data-i18n="account_text"></p>
       </div>
+    </div>
+  </section>
+
+  <section id="reglages">
+    <div class="wrap grid grid-2" style="gap:24px;">
       <div class="card">
+        <h2 data-i18n="settings_title"></h2>      <div class="card">
         <h2 data-i18n="settings_display"></h2>
         <div class="form-row"><label for="sel-theme" data-i18n="settings_theme"></label>
           <select id="sel-theme"><option value="dark" data-i18n="theme_dark"></option><option value="light" data-i18n="theme_light"></option></select></div>

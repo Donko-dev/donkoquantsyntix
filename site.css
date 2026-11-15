@@ -190,3 +190,14 @@ input, select {
   .brand-name { font-size: 1rem; }
   .brand img { width: 36px; height: 36px; }
 }
+
+/* Correctif : le nom de marque ne doit jamais passer sous les boutons de l'en-tête */
+.header-row { min-width: 0; }
+.brand { flex: 1 1 auto; min-width: 0; }
+.brand-text { min-width: 0; flex: 1 1 auto; overflow: hidden; }
+.brand-name { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.header-tools { flex: 0 0 auto; }
+
+/* Connexion API : masquée sauf accès volontaire (#connexion) */
+.connection-section { display: none; }
+.connection-section.open { display: block; }
