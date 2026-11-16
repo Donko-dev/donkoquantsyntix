@@ -10,6 +10,8 @@
   var KEY = { lang: "syntix_lang", theme: "syntix_theme", ccy: "syntix_ccy", rate: "syntix_rate_eur",
               url: "syntix_api_url", token: "syntix_api_token", seen: "syntix_seen_events" };
   var POLL_MS = 30000;
+  var DEFAULT_INDICES = ["FX Vol 20","FX Vol 40","FX Vol 60","FX Vol 80","FX Vol 99",
+                         "SFX Vol 20","SFX Vol 40","SFX Vol 60","SFX Vol 80","SFX Vol 99"];
   var XOF_PER_EUR = 655.957; // parité fixe du FCFA (XOF et XAF) avec l'euro
   var ROBOT = "SYNTIX";
 
@@ -43,6 +45,8 @@
     $("sel-ccy").value = state.ccy;
     $("rate-eur").value = String(state.rateEur);
     renderKpisFromCache();
+    renderIndices();
+    if (cache) { renderCurve(cache.events); renderAgenda(cache.events); }
   }
 
   function setLang(lang) {
@@ -81,6 +85,11 @@
     } catch (e) {
       return value.toFixed(digits) + " " + state.ccy;
     }
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
   }
   function num(v, d) {
     if (v === null || v === undefined || isNaN(v)) return "—";
@@ -215,6 +224,100 @@
     });
   }
 
+  /* ---------- Courbe du résultat net cumulé (trades clôturés, ordre de clôture) ---------- */
+  function renderCurve(events) {
+    var box = $("curve");
+    var closes = events.filter(function (e) { return e.event === "CLOSE" && e.net != null; })
+      .sort(function (x, y) { return String(x.time).localeCompare(String(y.time)); });
+    box.textContent = "";
+    if (!closes.length) { box.textContent = t("curve_none"); return; }
+    var pts = [0], acc = 0;
+    closes.forEach(function (e) { acc += Number(e.net); pts.push(acc); });
+    var W = 600, H = 220, P = 24;
+    var lo = Math.min.apply(null, pts.concat([0])), hi = Math.max.apply(null, pts.concat([0]));
+    var span = (hi - lo) || 1;
+    function x(i) { return P + i * (W - 2 * P) / Math.max(pts.length - 1, 1); }
+    function y(v) { return H - P - ((v - lo) / span) * (H - 2 * P); }
+    var d = pts.map(function (v, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1); }).join(" ");
+    var zero = y(0).toFixed(1);
+    var last = pts[pts.length - 1];
+    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(t("curve_title")) + '">' +
+      '<line x1="' + P + '" x2="' + (W - P) + '" y1="' + zero + '" y2="' + zero + '" stroke="currentColor" opacity=".25" stroke-dasharray="4 4"/>' +
+      '<path d="' + d + '" fill="none" stroke="' + (last >= 0 ? "#2fb170" : "#e0574c") + '" stroke-width="2.5" stroke-linejoin="round"/>' +
+      "</svg>";
+    box.innerHTML = svg;
+    var val = document.createElement("div");
+    val.className = "kpi-value " + (last >= 0 ? "ok" : "bad");
+    val.textContent = money(last);
+    box.appendChild(val);
+  }
+
+  /* ---------- Agenda : ouvertures et clôtures par jour UTC ---------- */
+  function renderAgenda(events) {
+    var box = $("agenda-list");
+    box.textContent = "";
+    if (!events.length) { box.textContent = t("agenda_none"); return; }
+    var days = {};
+    events.forEach(function (e) {
+      var d = new Date(e.time);
+      if (isNaN(d)) return;
+      var key = d.toISOString().slice(0, 10);
+      days[key] = days[key] || { opened: 0, closed: 0, net: 0 };
+      if (e.event === "CLOSE") { days[key].closed += 1; days[key].net += Number(e.net || 0); }
+      else { days[key].opened += 1; }
+    });
+    Object.keys(days).sort().reverse().forEach(function (key) {
+      var row = days[key];
+      var card = document.createElement("div");
+      card.className = "agenda-day";
+      var h = document.createElement("h3");
+      h.textContent = key;
+      var p = document.createElement("div");
+      p.className = "small";
+      p.textContent = num(row.opened) + " " + t("day_opened") + " · " + num(row.closed) + " " + t("day_closed") + " · " + money(row.net);
+      card.appendChild(h); card.appendChild(p);
+      box.appendChild(card);
+    });
+  }
+
+  /* ---------- Indices : actifs par défaut et favoris (stockés dans le navigateur) ---------- */
+  function favs() {
+    try { var v = JSON.parse(load("syntix_favs") || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+  function toggleFav(name) {
+    var list = favs();
+    var i = list.indexOf(name);
+    if (i === -1) list.push(name); else list.splice(i, 1);
+    store("syntix_favs", JSON.stringify(list));
+    renderIndices();
+  }
+  function indexRow(name) {
+    var on = favs().indexOf(name) !== -1;
+    var row = document.createElement("div");
+    row.className = "index-chip";
+    var label = document.createElement("span");
+    label.textContent = name;
+    var star = document.createElement("button");
+    star.type = "button";
+    star.className = "star" + (on ? " on" : "");
+    star.textContent = on ? "★" : "☆";
+    star.setAttribute("aria-label", t(on ? "fav_remove" : "fav_add"));
+    star.addEventListener("click", function () { toggleFav(name); });
+    row.appendChild(label); row.appendChild(star);
+    return row;
+  }
+  function renderIndices() {
+    var d = $("defaults");
+    if (!d) return;
+    d.textContent = "";
+    DEFAULT_INDICES.forEach(function (name) { d.appendChild(indexRow(name)); });
+    var f = $("favs");
+    f.textContent = "";
+    var list = favs();
+    if (!list.length) { f.textContent = t("favs_none"); return; }
+    list.forEach(function (name) { f.appendChild(indexRow(name)); });
+  }
+
   /* ---------- Cycle de rafraîchissement ---------- */
   function refresh() {
     var c = cfg();
@@ -226,17 +329,22 @@
     return Promise.all([
       apiGet("/api/robots/" + ROBOT + "/stats"),
       apiGet("/api/robots/" + ROBOT + "/open"),
-      apiGet("/api/robots/" + ROBOT + "/journal?limit=50"),
+      apiGet("/api/robots/" + ROBOT + "/journal?limit=200"),
     ]).then(function (res) {
       cache = { stats: res[0].statistics, open: res[1].open || [], events: res[2].events || [] };
       setConn("ok", t("status_connected"));
       renderKpis(cache.stats);
       renderOpen(cache.open);
       renderJournal(cache.events);
+      renderCurve(cache.events);
+      renderAgenda(cache.events);
       detectNew(cache.events);
       state.firstLoad = false;
       $("updated").textContent = new Date().toLocaleTimeString(LOCALE[state.lang]);
     }).catch(function (err) {
+      if (!/^(unauthorized|not_configured|http_|Failed to fetch|NetworkError)/.test(err.message || "")) {
+        console.error("Rendu SYNTIX :", err);
+      }
       var msg = { unauthorized: t("err_unauth"), not_configured: t("err_not_configured") }[err.message] || t("err_offline");
       setConn("bad", t("status_disconnected"));
       $("settings-msg").textContent = msg;
@@ -361,6 +469,7 @@
     setTheme(state.theme);
     applyTranslations();
     initConnectionSection();
+    renderIndices();
     initHeader();
     initNav();
     initSettings();

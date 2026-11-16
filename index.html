@@ -36,6 +36,9 @@
         <li><a href="#tableau" data-nav="tableau" data-i18n="nav_dashboard"></a></li>
         <li><a href="#positions" data-nav="positions" data-i18n="nav_positions"></a></li>
         <li><a href="#journal" data-nav="journal" data-i18n="nav_journal"></a></li>
+        <li><a href="#statistiques" data-nav="statistiques" data-i18n="nav_stats"></a></li>
+        <li><a href="#agenda" data-nav="agenda" data-i18n="nav_agenda"></a></li>
+        <li><a href="#indices" data-nav="indices" data-i18n="nav_indices"></a></li>
         <li><a href="#methode" data-nav="methode" data-i18n="nav_method"></a></li>
         <li><a href="#heures" data-nav="heures" data-i18n="nav_hours"></a></li>
         <li><a href="#alertes" data-nav="alertes" data-i18n="nav_alerts"></a></li>
@@ -113,6 +116,51 @@
           <tbody id="journal-body"><tr><td colspan="6" class="muted" data-i18n="journal_none"></td></tr></tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <section id="statistiques">
+    <div class="wrap">
+      <h2 data-i18n="stats_title"></h2>
+      <div class="card" style="margin-top:14px;">
+        <div class="kpi-label" data-i18n="curve_title"></div>
+        <div id="curve" style="margin-top:10px;"></div>
+        <p class="small muted" style="margin-top:8px;" data-i18n="curve_note"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="agenda">
+    <div class="wrap">
+      <h2 data-i18n="agenda_title"></h2>
+      <p class="small muted" data-i18n="agenda_note"></p>
+      <div id="agenda-list" style="margin-top:12px;"></div>
+    </div>
+  </section>
+
+  <section id="indices">
+    <div class="wrap">
+      <h2 data-i18n="indices_title"></h2>
+      <p data-i18n="indices_intro"></p>
+      <h3 style="margin-top:20px;" data-i18n="favs_title"></h3>
+      <div id="favs" class="link-list"></div>
+      <h3 style="margin-top:24px;" data-i18n="defaults_title"></h3>
+      <p class="small muted" data-i18n="defaults_note"></p>
+      <div id="defaults" class="grid grid-4" style="margin-top:10px;"></div>
+      <h3 style="margin-top:24px;" data-i18n="fam_title"></h3>
+      <div class="table-wrap" style="margin-top:10px;">
+        <table>
+          <thead><tr><th data-i18n="col_family"></th><th data-i18n="col_behavior"></th><th data-i18n="col_robot"></th></tr></thead>
+          <tbody>
+            <tr><td>FX Vol</td><td data-i18n="fam_fxvol"></td><td data-i18n="robot_active"></td></tr>
+            <tr><td>SFX Vol</td><td data-i18n="fam_sfxvol"></td><td data-i18n="robot_active"></td></tr>
+            <tr><td>PainX</td><td data-i18n="fam_painx"></td><td data-i18n="robot_off"></td></tr>
+            <tr><td>GainX</td><td data-i18n="fam_gainx"></td><td data-i18n="robot_off"></td></tr>
+            <tr><td>SwitchX / BreakX / TrendX / FlipX / PlusX / FiboX / QuadX / MAX</td><td data-i18n="fam_other"></td><td data-i18n="robot_off"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted" style="margin-top:12px;" data-i18n="spec_note"></p>
     </div>
   </section>
 
@@ -202,6 +250,7 @@
 
 <footer class="site-footer">
   <div class="wrap">
+    <img class="footer-logo" src="donko.png" alt="DONKO" width="72" height="72">
     <span class="brand-name">DONKO SYNTIX</span>
     <p data-i18n="footer_line"></p>
     <p data-i18n="footer_legal"></p>
