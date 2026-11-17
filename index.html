@@ -13,11 +13,22 @@
 </head>
 <body>
 
+<div id="lock" class="lock hidden" role="dialog" aria-modal="true" aria-labelledby="lock-title">
+  <div class="lock-box">
+    <img src="donko.png" alt="DONKO" width="64" height="64">
+    <h2 id="lock-title" data-i18n="lock_title"></h2>
+    <p class="small muted" data-i18n="lock_text"></p>
+    <input id="lock-input" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="Code">
+    <button id="lock-go" class="btn" type="button" data-i18n="lock_unlock"></button>
+    <p id="lock-msg" class="small bad"></p>
+  </div>
+</div>
+
 <header class="site-header">
   <div class="wrap">
     <div class="header-row">
       <a class="brand" href="#accueil" aria-label="DONKO SYNTIX">
-        <img src="donko.png" alt="DONKO">
+        <img src="donko.png" alt="DONKO" width="44" height="44">
         <span class="brand-text">
           <span class="brand-name">DONKO SYNTIX</span><br>
           <span class="brand-tag" data-i18n="tagline"></span>
@@ -25,7 +36,7 @@
       </a>
       <div class="header-tools">
         <button id="btn-theme" class="icon-btn" type="button" aria-label="Thème" title="Thème">◐</button>
-        <button id="btn-lang" class="icon-btn" type="button" aria-label="Langue" title="Langue">FR</button>
+        <button id="btn-lang" class="icon-btn flag" type="button" aria-label="Langue" title="Langue">🇫🇷</button>
         <button id="btn-install" class="icon-btn" type="button" data-i18n-aria="install" aria-label="Installer">⤓</button>
         <button id="btn-nav" class="icon-btn nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="main-nav">☰</button>
       </div>
@@ -34,11 +45,10 @@
       <ul>
         <li><a href="#accueil" data-nav="accueil" data-i18n="nav_home"></a></li>
         <li><a href="#tableau" data-nav="tableau" data-i18n="nav_dashboard"></a></li>
-        <li><a href="#positions" data-nav="positions" data-i18n="nav_positions"></a></li>
-        <li><a href="#journal" data-nav="journal" data-i18n="nav_journal"></a></li>
         <li><a href="#statistiques" data-nav="statistiques" data-i18n="nav_stats"></a></li>
         <li><a href="#agenda" data-nav="agenda" data-i18n="nav_agenda"></a></li>
         <li><a href="#indices" data-nav="indices" data-i18n="nav_indices"></a></li>
+        <li><a href="#journal" data-nav="journal" data-i18n="nav_journal"></a></li>
         <li><a href="#methode" data-nav="methode" data-i18n="nav_method"></a></li>
         <li><a href="#heures" data-nav="heures" data-i18n="nav_hours"></a></li>
         <li><a href="#alertes" data-nav="alertes" data-i18n="nav_alerts"></a></li>
@@ -74,46 +84,61 @@
     <div class="wrap">
       <div class="header-row" style="padding:0 0 14px;">
         <h2 data-i18n="nav_dashboard"></h2>
-        <span id="conn-pill" class="pill" data-i18n="status_unknown"></span>
+        <div class="header-tools">
+          <span id="conn-pill" class="pill" data-i18n="status_unknown"></span>
+          <button id="btn-privacy" class="icon-btn" type="button" aria-pressed="false" aria-label="Masquer les montants" title="Masquer les montants">👁</button>
+        </div>
       </div>
       <p class="small muted"><span data-i18n="updated"></span> : <span id="updated" data-i18n="never"></span></p>
-      <div class="grid grid-4" style="margin-top:14px;">
+
+      <div class="account-card card" style="margin-top:14px;">
+        <div class="account-head">
+          <div class="bot" aria-hidden="true">
+            <svg viewBox="0 0 120 120" class="bot-svg">
+              <defs>
+                <linearGradient id="gBot" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#f3d98a"/><stop offset=".5" stop-color="#c9a24a"/><stop offset="1" stop-color="#4a3714"/>
+                </linearGradient>
+              </defs>
+              <rect x="22" y="36" width="76" height="56" rx="14" fill="url(#gBot)"/>
+              <rect x="34" y="20" width="52" height="16" rx="6" fill="#1b1608" opacity=".85"/>
+              <line x1="60" y1="20" x2="60" y2="8" stroke="#e8c468" stroke-width="3"/>
+              <circle cx="60" cy="6" r="4" fill="#e8c468"/>
+              <circle cx="44" cy="28" r="4" fill="#2fb170"/><circle cx="76" cy="28" r="4" fill="#2fb170"/>
+            </svg>
+            <img src="donko.png" alt="" class="bot-logo">
+          </div>
+          <div class="account-meta">
+            <div class="kpi-label" data-i18n="acc_title"></div>
+            <div class="account-line"><span class="muted small" data-i18n="acc_broker"></span> <strong id="acc-broker">—</strong></div>
+            <div class="account-line"><span class="muted small" data-i18n="acc_server"></span> <strong id="acc-server">—</strong></div>
+            <div class="account-line"><span class="muted small" data-i18n="acc_account"></span> <strong id="acc-login">—</strong> <span id="acc-mode" class="mode-badge">—</span></div>
+          </div>
+        </div>
+        <div class="grid grid-2" style="margin-top:14px;">
+          <div><div class="kpi-label" data-i18n="acc_balance"></div><div class="kpi-value sens" id="acc-balance">—</div></div>
+          <div><div class="kpi-label" data-i18n="acc_equity"></div><div class="kpi-value sens" id="acc-equity">—</div></div>
+        </div>
+        <p id="acc-none" class="small muted" style="margin-top:10px;" data-i18n="acc_none"></p>
+      </div>
+
+      <div class="grid grid-4" style="margin-top:16px;">
         <div class="card"><div class="kpi-label" data-i18n="kpi_trades"></div><div class="kpi-value" id="k-trades">—</div></div>
-        <div class="card gold"><div class="kpi-label" data-i18n="kpi_net"></div><div class="kpi-value gold" id="k-net">—</div></div>
+        <div class="card gold"><div class="kpi-label" data-i18n="kpi_net"></div><div class="kpi-value gold sens" id="k-net">—</div></div>
         <div class="card"><div class="kpi-label" data-i18n="kpi_winrate"></div><div class="kpi-value" id="k-wr">—</div></div>
         <div class="card"><div class="kpi-label" data-i18n="kpi_open"></div><div class="kpi-value" id="k-open">—</div></div>
       </div>
       <div class="grid grid-2" style="margin-top:16px;">
         <div class="card"><div class="kpi-label" data-i18n="kpi_pf"></div><div class="kpi-value" id="k-pf">—</div></div>
-        <div class="card"><div class="kpi-label" data-i18n="kpi_dd"></div><div class="kpi-value" id="k-dd">—</div></div>
+        <div class="card"><div class="kpi-label" data-i18n="kpi_dd"></div><div class="kpi-value sens" id="k-dd">—</div></div>
       </div>
       <p class="small muted" style="margin-top:12px;" data-i18n="stats_note"></p>
-    </div>
-  </section>
 
-  <section id="positions">
-    <div class="wrap">
-      <h2 data-i18n="open_title"></h2>
+      <h3 style="margin-top:22px;" data-i18n="open_title"></h3>
       <div class="table-wrap">
         <table>
-          <thead><tr>
-            <th data-i18n="col_time"></th><th data-i18n="col_market"></th><th data-i18n="col_side"></th><th data-i18n="col_volume"></th><th>SL</th>
-          </tr></thead>
+          <thead><tr><th data-i18n="col_time"></th><th data-i18n="col_market"></th><th data-i18n="col_side"></th><th data-i18n="col_volume"></th><th>SL</th></tr></thead>
           <tbody id="open-body"><tr><td colspan="5" class="muted" data-i18n="open_none"></td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section id="journal">
-    <div class="wrap">
-      <h2 data-i18n="journal_title"></h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th data-i18n="col_time"></th><th data-i18n="col_event"></th><th data-i18n="col_market"></th><th data-i18n="col_side"></th><th data-i18n="col_volume"></th><th data-i18n="col_net"></th>
-          </tr></thead>
-          <tbody id="journal-body"><tr><td colspan="6" class="muted" data-i18n="journal_none"></td></tr></tbody>
         </table>
       </div>
     </div>
@@ -124,17 +149,33 @@
       <h2 data-i18n="stats_title"></h2>
       <div class="card" style="margin-top:14px;">
         <div class="kpi-label" data-i18n="curve_title"></div>
-        <div id="curve" style="margin-top:10px;"></div>
+        <div id="curve" class="sens" style="margin-top:10px;"></div>
         <p class="small muted" style="margin-top:8px;" data-i18n="curve_note"></p>
       </div>
     </div>
   </section>
 
   <section id="agenda">
-    <div class="wrap">
-      <h2 data-i18n="agenda_title"></h2>
-      <p class="small muted" data-i18n="agenda_note"></p>
-      <div id="agenda-list" style="margin-top:12px;"></div>
+    <div class="wrap grid grid-2" style="gap:20px;">
+      <div class="card">
+        <h2 data-i18n="cal_title"></h2>
+        <div class="cal-head">
+          <button id="cal-prev" class="icon-btn" type="button" aria-label="Mois précédent">‹</button>
+          <strong id="cal-month"></strong>
+          <button id="cal-next" class="icon-btn" type="button" aria-label="Mois suivant">›</button>
+        </div>
+        <div id="cal-grid" class="cal-grid"></div>
+        <div class="btn-row" style="margin-top:12px;">
+          <span id="cal-range" class="small muted"></span>
+          <button id="cal-reset" class="btn ghost" type="button" data-i18n="cal_reset"></button>
+        </div>
+        <p class="small muted" style="margin-top:8px;" data-i18n="cal_hint"></p>
+      </div>
+      <div>
+        <h2 data-i18n="agenda_title"></h2>
+        <p class="small muted" data-i18n="agenda_note"></p>
+        <div id="agenda-list" style="margin-top:12px;"></div>
+      </div>
     </div>
   </section>
 
@@ -143,10 +184,10 @@
       <h2 data-i18n="indices_title"></h2>
       <p data-i18n="indices_intro"></p>
       <h3 style="margin-top:20px;" data-i18n="favs_title"></h3>
-      <div id="favs" class="link-list"></div>
+      <div id="favs" class="index-grid"></div>
       <h3 style="margin-top:24px;" data-i18n="defaults_title"></h3>
       <p class="small muted" data-i18n="defaults_note"></p>
-      <div id="defaults" class="grid grid-4" style="margin-top:10px;"></div>
+      <div id="defaults" class="index-grid" style="margin-top:10px;"></div>
       <h3 style="margin-top:24px;" data-i18n="fam_title"></h3>
       <div class="table-wrap" style="margin-top:10px;">
         <table>
@@ -154,13 +195,25 @@
           <tbody>
             <tr><td>FX Vol</td><td data-i18n="fam_fxvol"></td><td data-i18n="robot_active"></td></tr>
             <tr><td>SFX Vol</td><td data-i18n="fam_sfxvol"></td><td data-i18n="robot_active"></td></tr>
-            <tr><td>PainX</td><td data-i18n="fam_painx"></td><td data-i18n="robot_off"></td></tr>
-            <tr><td>GainX</td><td data-i18n="fam_gainx"></td><td data-i18n="robot_off"></td></tr>
+            <tr><td>PainX</td><td data-i18n="fam_painx"></td><td data-i18n="robot_active"></td></tr>
+            <tr><td>GainX</td><td data-i18n="fam_gainx"></td><td data-i18n="robot_active"></td></tr>
             <tr><td>SwitchX / BreakX / TrendX / FlipX / PlusX / FiboX / QuadX / MAX</td><td data-i18n="fam_other"></td><td data-i18n="robot_off"></td></tr>
           </tbody>
         </table>
       </div>
       <p class="small muted" style="margin-top:12px;" data-i18n="spec_note"></p>
+    </div>
+  </section>
+
+  <section id="journal">
+    <div class="wrap">
+      <h2 data-i18n="journal_title"></h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th data-i18n="col_time"></th><th data-i18n="col_event"></th><th data-i18n="col_market"></th><th data-i18n="col_side"></th><th data-i18n="col_volume"></th><th data-i18n="col_net"></th></tr></thead>
+          <tbody id="journal-body"><tr><td colspan="6" class="muted" data-i18n="journal_none"></td></tr></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -222,8 +275,6 @@
           <button class="btn ghost" id="btn-forget" type="button" data-i18n="settings_forget"></button>
         </div>
         <p id="settings-msg" class="small" style="margin-top:12px;"></p>
-        <h3 style="margin-top:22px;" data-i18n="account_title"></h3>
-        <p class="small" data-i18n="account_text"></p>
       </div>
     </div>
   </section>
@@ -231,17 +282,50 @@
   <section id="reglages">
     <div class="wrap grid grid-2" style="gap:24px;">
       <div class="card">
-        <h2 data-i18n="settings_title"></h2>      <div class="card">
         <h2 data-i18n="settings_display"></h2>
-        <div class="form-row"><label for="sel-theme" data-i18n="settings_theme"></label>
-          <select id="sel-theme"><option value="dark" data-i18n="theme_dark"></option><option value="light" data-i18n="theme_light"></option></select></div>
-        <div class="form-row"><label for="sel-lang" data-i18n="settings_lang"></label>
-          <select id="sel-lang"><option value="fr">Français</option><option value="en">English</option><option value="de">Deutsch</option></select></div>
-        <div class="form-row"><label for="sel-ccy" data-i18n="settings_ccy"></label>
-          <select id="sel-ccy"><option value="USD">USD</option><option value="EUR">EUR</option><option value="XOF">FCFA (XOF)</option><option value="XAF">FCFA (XAF)</option></select></div>
-        <div class="form-row"><label for="rate-eur" data-i18n="settings_rate_eur"></label>
-          <input id="rate-eur" type="number" step="0.0001" min="0.0001" inputmode="decimal"></div>
+        <div class="form-row"><span class="small muted" data-i18n="settings_theme"></span>
+          <div class="btn-row" style="margin-top:6px;">
+            <button class="btn ghost seg" id="th-dark" type="button" data-i18n="theme_dark"></button>
+            <button class="btn ghost seg" id="th-light" type="button" data-i18n="theme_light"></button>
+          </div>
+        </div>
+        <div class="form-row"><span class="small muted" data-i18n="settings_lang"></span>
+          <div class="btn-row" style="margin-top:6px;">
+            <button class="btn ghost seg flag-btn" id="lg-fr" type="button" aria-label="Français" title="Français">🇫🇷</button>
+            <button class="btn ghost seg flag-btn" id="lg-en" type="button" aria-label="English" title="English">🇬🇧</button>
+            <button class="btn ghost seg flag-btn" id="lg-de" type="button" aria-label="Deutsch" title="Deutsch">🇩🇪</button>
+          </div>
+        </div>
+        <div class="form-row"><span class="small muted" data-i18n="settings_ccy"></span>
+          <div class="btn-row" style="margin-top:6px;">
+            <button class="btn ghost seg" data-ccy="USD" type="button">USD</button>
+            <button class="btn ghost seg" data-ccy="EUR" type="button">EUR</button>
+            <button class="btn ghost seg" data-ccy="XOF" type="button">FCFA (XOF)</button>
+            <button class="btn ghost seg" data-ccy="XAF" type="button">FCFA (XAF)</button>
+          </div>
+        </div>
+        <p id="rate-info" class="small muted" data-i18n="rate_loading"></p>
         <p class="small muted" data-i18n="rate_note"></p>
+      </div>
+      <div class="card">
+        <h2 data-i18n="sec_title"></h2>
+        <p class="small muted" data-i18n="sec_intro"></p>
+        <div class="form-row"><label for="pin-new" data-i18n="sec_pin_label"></label>
+          <input id="pin-new" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div>
+        <div class="form-row"><label for="pin-old" data-i18n="sec_pin_current"></label>
+          <input id="pin-old" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div>
+        <div class="btn-row">
+          <button class="btn" id="pin-set" type="button" data-i18n="sec_set"></button>
+          <button class="btn ghost" id="pin-change" type="button" data-i18n="sec_change"></button>
+          <button class="btn ghost" id="pin-disable" type="button" data-i18n="sec_disable"></button>
+        </div>
+        <div class="form-row" style="margin-top:14px;"><label for="lock-after" data-i18n="sec_lock_after"></label>
+          <select id="lock-after">
+            <option value="1">1 min</option><option value="5">5 min</option><option value="10">10 min</option>
+            <option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option><option value="60">60 min</option>
+          </select></div>
+        <p id="sec-msg" class="small" style="margin-top:8px;"></p>
+        <p class="small muted" data-i18n="sec_pattern_note"></p>
       </div>
     </div>
   </section>
@@ -261,6 +345,14 @@
     </div>
   </div>
 </footer>
+
+<nav class="bottom-nav" aria-label="Navigation rapide">
+  <a href="#accueil" data-nav="accueil"><span>⌂</span><small data-i18n="nav_home"></small></a>
+  <a href="#tableau" data-nav="tableau"><span>▦</span><small data-i18n="nav_dashboard"></small></a>
+  <a href="#agenda" data-nav="agenda"><span>▤</span><small data-i18n="nav_agenda"></small></a>
+  <a href="#indices" data-nav="indices"><span>★</span><small data-i18n="nav_indices"></small></a>
+  <a href="#reglages" data-nav="reglages"><span>⚙</span><small data-i18n="nav_settings"></small></a>
+</nav>
 
 <script src="i18n.js"></script>
 <script src="app.js"></script>
