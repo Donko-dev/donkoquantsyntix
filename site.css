@@ -326,3 +326,38 @@ img, svg, video { max-width: 100%; height: auto; }
   .header-row > .header-tools { flex: 1 1 100%; justify-content: space-between; }
   .footer-links { flex-direction: column; align-items: center; }
 }
+
+/* ===== Œil : barre visible seulement quand les montants sont cachés ===== */
+.eye-btn .slash { display: none; }
+body.private .eye-btn .slash { display: inline; }
+
+/* ===== Compte connecté : logo seul dans son cadre ===== */
+.bot { background: radial-gradient(circle at 30% 20%, #2a2212, #0d0f14 70%); }
+.bot-logo { width: 76px; height: 76px; margin: 0; object-fit: contain; }
+
+/* ===== Menus de réglages et calendrier replié ===== */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 14px 0; }
+.tile { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 12px 16px; border-radius: 14px;
+  border: 1px solid var(--gold-deep); background: var(--panel); color: var(--text); font-family: inherit; font-size: 1rem;
+  font-weight: 600; cursor: pointer; text-align: left; }
+.tile:hover { border-color: var(--gold); }
+.tile-ico { font-size: 1.3rem; }
+.setting-panel { margin-bottom: 14px; }
+.cal-panel { margin-top: 12px; }
+.hidden { display: none !important; }
+
+/* ===== Schéma de déverrouillage : grille 3 x 3 ===== */
+.pattern { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: min(260px, 100%); margin: 14px auto;
+  padding: 12px; border-radius: 16px; background: var(--panel-2); border: 1px solid var(--line); touch-action: none;
+  user-select: none; -webkit-user-select: none; }
+.pattern.hidden { display: none; }
+.pn { aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--gold-deep); background: var(--bg-2);
+  transition: background .15s, box-shadow .15s; }
+.pn.on { background: var(--gold); box-shadow: 0 0 14px rgba(232, 196, 104, .55); border-color: var(--gold); }
+
+/* ===== Verrou : texte et champs centrés ===== */
+.lock-box .pattern { margin-top: 10px; }
+
+/* Logo du tableau de bord : illustration carrée, sans recadrage */
+.bot { width: 96px; height: 96px; padding: 0; overflow: hidden; border-radius: 16px; }
+.bot-art { width: 100%; height: 100%; object-fit: cover; display: block; }

@@ -118,6 +118,7 @@
     store(KEY.theme, state.theme);
     $("th-dark").classList.toggle("active", state.theme === "dark");
     $("th-light").classList.toggle("active", state.theme === "light");
+    $("btn-theme").textContent = state.theme === "dark" ? "☀" : "🌙";
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", state.theme === "light" ? "#fbf7ec" : "#07080b");
   }
@@ -141,85 +142,184 @@
     b.setAttribute("aria-label", label); b.title = label;
   }
 
-  /* ---------- Code de verrouillage (haché, jamais en clair) ---------- */
+  /* ---------- Verrouillage : code numérique ou schéma (haché, jamais en clair) ---------- */
   function hex(buf) { return Array.from(new Uint8Array(buf)).map(function (x) { return x.toString(16).padStart(2, "0"); }).join(""); }
   function randomSalt() { var a = new Uint8Array(16); crypto.getRandomValues(a); return hex(a); }
-  function hashPin(pin, salt) {
-    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + pin)).then(hex);
+  function hashSecret(secret, salt) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + secret)).then(hex);
   }
   function validPin(pin) { return /^[0-9]{4,8}$/.test(pin); }
   function lockConfig() { try { return JSON.parse(load(KEY.lock) || "null"); } catch (e) { return null; } }
   function lockOn() { var c = lockConfig(); return !!(c && c.hash); }
-  function lockMinutes() { var c = lockConfig(); return (c && c.minutes) || 5; }
-
+  function lockType() { var c = lockConfig(); return (c && c.type) || "pin"; }
+  function lockSeconds() {
+    var c = lockConfig();
+    if (!c) return 300;
+    if (c.seconds) return Number(c.seconds);
+    if (c.minutes) return Number(c.minutes) * 60;
+    return 300;
+  }
+  function saveLock(type, secret, seconds) {
+    var salt = randomSalt();
+    return hashSecret(secret, salt).then(function (h) {
+      store(KEY.lock, JSON.stringify({ type: type, salt: salt, hash: h, seconds: seconds }));
+    });
+  }
   function showLock(on) {
     $("lock").classList.toggle("hidden", !on);
     document.body.classList.toggle("locked", on);
-    if (on) { $("lock-input").value = ""; setTimeout(function () { $("lock-input").focus(); }, 50); }
+    var pat = lockType() === "pattern";
+    $("lock-pin-wrap").classList.toggle("hidden", pat);
+    $("lock-pattern").classList.toggle("hidden", !pat);
+    $("lock-text").textContent = t(pat ? "lock_pattern_text" : "lock_text");
+    $("lock-msg").textContent = "";
+    if (on && !pat) { $("lock-input").value = ""; setTimeout(function () { $("lock-input").focus(); }, 50); }
   }
   function lockNow() { if (lockOn()) showLock(true); }
-
-  function unlockWith(pin) {
+  function unlockWith(secret) {
     var c = lockConfig();
     if (!c) { showLock(false); return Promise.resolve(true); }
-    return hashPin(pin, c.salt).then(function (h) {
-      if (h === c.hash) { showLock(false); $("lock-msg").textContent = ""; return true; }
-      $("lock-msg").textContent = t("lock_wrong");
+    return hashSecret(secret, c.salt).then(function (h) {
+      if (h === c.hash) { showLock(false); return true; }
+      $("lock-msg").textContent = t(c.type === "pattern" ? "pattern_wrong" : "lock_wrong");
       return false;
     });
   }
 
-  function setPin(pin, minutes) {
-    var salt = randomSalt();
-    return hashPin(pin, salt).then(function (h) {
-      store(KEY.lock, JSON.stringify({ salt: salt, hash: h, minutes: minutes }));
+  /* Grille 3 x 3 : points numérotés 0 à 8, tracé au doigt ou à la souris. */
+  function buildPattern(container) {
+    container.textContent = "";
+    for (var i = 0; i < 9; i++) {
+      var d = document.createElement("div");
+      d.className = "pn"; d.setAttribute("data-i", String(i));
+      container.appendChild(d);
+    }
+  }
+  function patternDraw(container, onDone) {
+    var seq = [], drawing = false;
+    function clearAll() { seq = []; container.querySelectorAll(".pn").forEach(function (d) { d.classList.remove("on"); }); }
+    function add(x, y) {
+      var el = document.elementFromPoint(x, y);
+      if (el && el.classList && el.classList.contains("pn")) {
+        var i = Number(el.getAttribute("data-i"));
+        if (seq.indexOf(i) === -1) { seq.push(i); el.classList.add("on"); }
+      }
+    }
+    container.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); clearAll(); drawing = true;
+      try { container.setPointerCapture(e.pointerId); } catch (err) { /* */ }
+      add(e.clientX, e.clientY);
     });
+    container.addEventListener("pointermove", function (e) { if (drawing) add(e.clientX, e.clientY); });
+    container.addEventListener("pointerup", function () {
+      if (!drawing) return;
+      drawing = false;
+      var s = seq.slice();
+      setTimeout(function () { clearAll(); onDone(s.join("-"), s.length); }, 150);
+    });
+    container.addEventListener("pointercancel", function () { drawing = false; clearAll(); });
+  }
+
+  var pat = { mode: null, first: null };
+  function secMsg(text) { $("sec-msg").textContent = text; }
+  function patHint(text) { $("pat-hint").textContent = text; }
+  function patOnDraw(seq, len) {
+    if (len < 4) { patHint(t("pattern_short")); return; }
+    var cfg = lockConfig();
+    if (pat.mode === "verify-disable") {
+      hashSecret(seq, cfg.salt).then(function (h) {
+        if (h !== cfg.hash) { secMsg(t("pattern_wrong")); return; }
+        unstore(KEY.lock); pat.mode = null; secMsg(t("pattern_disabled"));
+      });
+      return;
+    }
+    if (pat.mode === "verify-change") {
+      hashSecret(seq, cfg.salt).then(function (h) {
+        if (h !== cfg.hash) { secMsg(t("pattern_wrong")); return; }
+        pat.mode = "new"; patHint(t("pattern_draw_new"));
+      });
+      return;
+    }
+    if (pat.mode === "new") { pat.first = seq; pat.mode = "again"; patHint(t("pattern_draw_again")); return; }
+    if (pat.mode === "again") {
+      if (seq !== pat.first) { pat.mode = null; pat.first = null; patHint(t("pattern_hint")); secMsg(t("pattern_mismatch")); return; }
+      var wasOn = lockOn();
+      saveLock("pattern", seq, lockSeconds()).then(function () {
+        pat.mode = null; pat.first = null; patHint(t("pattern_hint"));
+        secMsg(t(wasOn ? "pattern_changed" : "pattern_saved"));
+      });
+    }
+  }
+
+  function applyModeUI() {
+    var isPat = $("lock-mode").value === "pattern";
+    $("sec-pin").classList.toggle("hidden", isPat);
+    $("sec-pattern").classList.toggle("hidden", !isPat);
   }
 
   function initSecurity() {
-    var c = lockConfig();
-    $("lock-after").value = String((c && c.minutes) || 5);
+    buildPattern($("pattern-setup")); buildPattern($("lock-pattern"));
+    patternDraw($("pattern-setup"), patOnDraw);
+    patternDraw($("lock-pattern"), function (seq, len) { if (len >= 4) unlockWith(seq); else $("lock-msg").textContent = t("pattern_short"); });
+    $("lock-mode").value = lockType();
+    applyModeUI();
+    $("lock-mode").addEventListener("change", applyModeUI);
+    $("lock-after").value = String(lockSeconds());
     $("lock-after").addEventListener("change", function (e) {
       var cfg = lockConfig(); if (!cfg) return;
-      cfg.minutes = Number(e.target.value); store(KEY.lock, JSON.stringify(cfg));
+      cfg.seconds = Number(e.target.value); delete cfg.minutes; store(KEY.lock, JSON.stringify(cfg));
     });
+
+    /* Code numérique */
     $("pin-set").addEventListener("click", function () {
       var pin = $("pin-new").value.trim();
-      if (!validPin(pin)) { $("sec-msg").textContent = t("sec_invalid"); return; }
-      setPin(pin, Number($("lock-after").value)).then(function () {
-        $("pin-new").value = ""; $("sec-msg").textContent = t("sec_ok");
-      });
+      if (!validPin(pin)) { secMsg(t("sec_invalid")); return; }
+      saveLock("pin", pin, Number($("lock-after").value)).then(function () { $("pin-new").value = ""; secMsg(t("sec_ok")); });
     });
     $("pin-change").addEventListener("click", function () {
       var cur = $("pin-old").value.trim(), pin = $("pin-new").value.trim();
-      if (!lockOn()) { $("sec-msg").textContent = t("sec_need_current"); return; }
-      if (!validPin(pin)) { $("sec-msg").textContent = t("sec_invalid"); return; }
       var cfg = lockConfig();
-      hashPin(cur, cfg.salt).then(function (h) {
-        if (h !== cfg.hash) { $("sec-msg").textContent = t("sec_bad"); return; }
-        return setPin(pin, cfg.minutes).then(function () {
-          $("pin-old").value = ""; $("pin-new").value = ""; $("sec-msg").textContent = t("sec_changed");
+      if (!cfg) { secMsg(t("sec_need_current")); return; }
+      if (!validPin(pin)) { secMsg(t("sec_invalid")); return; }
+      hashSecret(cur, cfg.salt).then(function (h) {
+        if (h !== cfg.hash) { secMsg(t("sec_bad")); return; }
+        return saveLock("pin", pin, cfg.seconds || lockSeconds()).then(function () {
+          $("pin-old").value = ""; $("pin-new").value = ""; secMsg(t("sec_changed"));
         });
       });
     });
     $("pin-disable").addEventListener("click", function () {
-      var cur = $("pin-old").value.trim();
-      var cfg = lockConfig();
-      if (!cfg) { $("sec-msg").textContent = t("sec_need_current"); return; }
-      hashPin(cur, cfg.salt).then(function (h) {
-        if (h !== cfg.hash) { $("sec-msg").textContent = t("sec_bad"); return; }
-        unstore(KEY.lock); $("pin-old").value = ""; $("sec-msg").textContent = t("sec_disabled");
+      var cur = $("pin-old").value.trim(), cfg = lockConfig();
+      if (!cfg) { secMsg(t("sec_need_current")); return; }
+      hashSecret(cur, cfg.salt).then(function (h) {
+        if (h !== cfg.hash) { secMsg(t("sec_bad")); return; }
+        unstore(KEY.lock); $("pin-old").value = ""; secMsg(t("sec_disabled"));
       });
     });
+
+    /* Schéma */
+    $("pat-set").addEventListener("click", function () {
+      if (lockOn()) { secMsg(t("sec_need_current")); return; }
+      pat.mode = "new"; patHint(t("pattern_draw_new")); secMsg("");
+    });
+    $("pat-change").addEventListener("click", function () {
+      if (!lockOn()) { secMsg(t("sec_need_current")); return; }
+      pat.mode = "verify-change"; patHint(t("pattern_draw_current")); secMsg("");
+    });
+    $("pat-disable").addEventListener("click", function () {
+      if (!lockOn()) { secMsg(t("sec_need_current")); return; }
+      pat.mode = "verify-disable"; patHint(t("pattern_draw_current")); secMsg("");
+    });
+
     $("lock-go").addEventListener("click", function () { unlockWith($("lock-input").value.trim()); });
     $("lock-input").addEventListener("keydown", function (e) { if (e.key === "Enter") unlockWith($("lock-input").value.trim()); });
 
-    /* Verrouillage automatique après être resté hors de l'application */
+    /* Verrouillage automatique : après être resté hors de l'application plus longtemps que le délai */
     document.addEventListener("visibilitychange", function () {
       if (document.hidden) { store(KEY.hiddenAt, String(Date.now())); return; }
       var at = Number(load(KEY.hiddenAt) || 0);
       unstore(KEY.hiddenAt);
-      if (lockOn() && at && Date.now() - at >= lockMinutes() * 60000) lockNow();
+      if (lockOn() && at && Date.now() - at >= lockSeconds() * 1000) lockNow();
     });
     if (lockOn()) showLock(true);
   }
@@ -350,7 +450,7 @@
     });
   }
 
-  /* ---------- Calendrier : choisir une période, comme dans MT5 ---------- */
+  /* ---------- Calendrier replié : choisir une période, par saisie ou sur le calendrier ---------- */
   function activityDays() {
     var m = {};
     if (cache) cache.events.forEach(function (e) { var d = new Date(e.time); if (!isNaN(d)) m[dayKey(d)] = 1; });
@@ -363,7 +463,6 @@
     $("cal-month").textContent = new Intl.DateTimeFormat(LOCALE[state.lang], { month: "long", year: "numeric", timeZone: "UTC" }).format(first);
     var days = activityDays();
     grid.textContent = "";
-    // 1er janvier 2024 = lundi : les libellés partent du lundi.
     var labels = Array.from({ length: 7 }, function (_, i) {
       return new Intl.DateTimeFormat(LOCALE[state.lang], { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 1 + i)));
     });
@@ -382,25 +481,94 @@
       b.addEventListener("click", function (ev) { pickDay(ev.currentTarget.getAttribute("data-key")); });
       grid.appendChild(b);
     }
+    $("cal-from").value = sel ? sel.a : "";
+    $("cal-to").value = sel ? sel.b : "";
     var r = $("cal-range");
     if (!sel) r.textContent = t("cal_range_none");
     else if (sel.a === sel.b) r.textContent = t("cal_range_one") + " · " + sel.a;
     else r.textContent = fill(t("cal_range"), { a: sel.a, b: sel.b });
   }
-  var pending = null;
-  function pickDay(key) {
-    if (!pending) { pending = key; state.range = { a: key, b: key }; }
-    else { var a = pending < key ? pending : key, b = pending < key ? key : pending; state.range = { a: a, b: b }; pending = null; }
+  function applyRange(a, b) {
+    state.range = (a && b) ? { a: a < b ? a : b, b: a < b ? b : a } : null;
+    if (state.range) { var p = state.range.a.split("-"); state.cal = { y: Number(p[0]), m: Number(p[1]) - 1 }; }
     renderCalendar();
     if (cache) { renderAgenda(cache.events); renderJournal(cache.events); }
   }
+  var pending = null;
+  function pickDay(key) {
+    if (!pending) { pending = key; applyRange(key, key); }
+    else { var first = pending; pending = null; applyRange(first, key); }
+  }
+  function validIso(v) { return /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(new Date(v + "T00:00:00Z")); }
   function initCalendar() {
+    $("cal-open").addEventListener("click", function () {
+      var hidden = $("cal-panel").classList.toggle("hidden");
+      $("cal-open").setAttribute("aria-expanded", String(!hidden));
+    });
+    $("cal-close").addEventListener("click", function () {
+      $("cal-panel").classList.add("hidden"); $("cal-open").setAttribute("aria-expanded", "false");
+    });
     $("cal-prev").addEventListener("click", function () { var c = state.cal; c.m -= 1; if (c.m < 0) { c.m = 11; c.y -= 1; } renderCalendar(); });
     $("cal-next").addEventListener("click", function () { var c = state.cal; c.m += 1; if (c.m > 11) { c.m = 0; c.y += 1; } renderCalendar(); });
-    $("cal-reset").addEventListener("click", function () {
-      state.range = null; pending = null; renderCalendar();
-      if (cache) { renderAgenda(cache.events); renderJournal(cache.events); }
+    $("cal-from").addEventListener("change", function (e) {
+      var v = e.target.value; if (!validIso(v)) return;
+      applyRange(v, state.range ? state.range.b : v);
     });
+    $("cal-to").addEventListener("change", function (e) {
+      var v = e.target.value; if (!validIso(v)) return;
+      applyRange(state.range ? state.range.a : v, v);
+    });
+    $("cal-reset").addEventListener("click", function () { pending = null; applyRange(null, null); });
+  }
+
+  /* ---------- Menus de réglages : Affichage et Sécurité ---------- */
+  function initMenus() {
+    function toggle(btnId, panelId) {
+      $(btnId).addEventListener("click", function () {
+        var hidden = $(panelId).classList.toggle("hidden");
+        $(btnId).setAttribute("aria-expanded", String(!hidden));
+      });
+    }
+    toggle("open-display", "panel-display");
+    toggle("open-security", "panel-security");
+  }
+
+  /* ---------- Backtest publié (fichier backtest.json à la racine du site) ---------- */
+  function renderBacktest(data) {
+    var box = $("bt-box"); box.textContent = "";
+    var meta = document.createElement("p"); meta.className = "small muted";
+    var parts = [];
+    if (data.period) parts.push(t("bt_period") + " : " + data.period);
+    if (data.generated) parts.push(t("bt_generated") + " " + data.generated);
+    meta.textContent = parts.join(" · ");
+    box.appendChild(meta);
+    var wrap = document.createElement("div"); wrap.className = "table-wrap";
+    var table = document.createElement("table");
+    var head = document.createElement("thead"), hr = document.createElement("tr");
+    ["bt_col_index", "bt_col_trades", "bt_col_win", "bt_col_pf", "bt_col_dd", "bt_col_net"].forEach(function (k) {
+      var th = document.createElement("th"); th.textContent = t(k); hr.appendChild(th);
+    });
+    head.appendChild(hr); table.appendChild(head);
+    var body = document.createElement("tbody");
+    (data.rows || []).forEach(function (r) {
+      var tr = document.createElement("tr");
+      tr.appendChild(cell(String(r.index || "—")));
+      tr.appendChild(cell(num(r.trades)));
+      tr.appendChild(cell(r.win_rate == null ? "—" : num(r.win_rate, 1) + " %"));
+      tr.appendChild(cell(r.profit_factor == null ? "—" : num(r.profit_factor, 2)));
+      tr.appendChild(cell(r.max_drawdown == null ? "—" : money(r.max_drawdown)));
+      tr.appendChild(cell(r.net == null ? "—" : money(r.net), Number(r.net) >= 0 ? "ok" : "bad"));
+      body.appendChild(tr);
+    });
+    table.appendChild(body); wrap.appendChild(table); box.appendChild(wrap);
+    var disc = document.createElement("p"); disc.className = "small muted"; disc.style.marginTop = "8px";
+    disc.textContent = t("bt_disclaimer"); box.appendChild(disc);
+  }
+  function initBacktest() {
+    fetch("backtest.json", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("absent"); return r.json(); })
+      .then(renderBacktest)
+      .catch(function () { /* aucun backtest publié : le message par défaut reste affiché */ });
   }
 
   /* ---------- Indices : actifs par défaut et favoris ---------- */
@@ -583,7 +751,7 @@
     setTheme(state.theme);
     setCcy(state.ccy);
     applyTranslations();
-    initDisplay(); initNav(); initConnection(); initSecurity(); initCalendar();
+    initDisplay(); initNav(); initConnection(); initSecurity(); initCalendar(); initMenus(); initBacktest();
     openConnectionIfRequested();
     window.addEventListener("hashchange", openConnectionIfRequested);
     refresh(); startPolling();
