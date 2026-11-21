@@ -371,3 +371,27 @@ var V3 = {
   },
 };
 for (var lw in V3) { Object.assign(window.SYNTIX_I18N[lw], V3[lw]); }
+
+
+/* Robots, blog, navigation. Les descriptions détaillées des robots sont en français pour cette version. */
+var V4 = {
+  fr: { nav_robots: "Robots", nav_blog: "Blog", robots_title: "Les 5 robots DONKO",
+        robots_intro: "Chaque robot a son marché, sa logique et ses limites. Un robot ne dépend jamais d'un autre : il tourne seul, ou avec les autres sur le même serveur.",
+        blog_title: "Annonce", blog_date: "Novembre 2026",
+        blog_post_title: "Cinq robots, un seul tableau de bord",
+        blog_post_text: "DONKO présente cinq robots de trading automatiques : DONKO SYNTIX pour les indices SyntX de Weltrade, DONKO GOLD pour l'or, DONKO BITCOIN pour le Bitcoin, DONKO GOLBIT pour l'or et le Bitcoin, et DONKO SYGOBI qui réunit les trois marchés. Chacun a ses règles écrites, ses limites publiées et son propre tableau de bord sur ce site.",
+        blog_post_warn: "Aucun gain n'est garanti. Les stratégies ne sont pas encore validées par backtest. Le trading comporte un risque de perte en capital." },
+  en: { nav_robots: "Robots", nav_blog: "Blog", robots_title: "The 5 DONKO robots",
+        robots_intro: "Each robot has its market, its logic and its limits. No robot depends on another: it runs alone, or with the others on the same server.",
+        blog_title: "Announcement", blog_date: "November 2026",
+        blog_post_title: "Five robots, one dashboard",
+        blog_post_text: "DONKO presents five automated trading robots: DONKO SYNTIX for Weltrade's SyntX indices, DONKO GOLD for gold, DONKO BITCOIN for Bitcoin, DONKO GOLBIT for gold and Bitcoin, and DONKO SYGOBI, which covers all three markets. Each has written rules, published limits and its own dashboard on this site.",
+        blog_post_warn: "No gain is guaranteed. The strategies are not yet validated by backtest. Trading involves risks of capital loss." },
+  de: { nav_robots: "Roboter", nav_blog: "Blog", robots_title: "Die 5 DONKO-Roboter",
+        robots_intro: "Jeder Roboter hat seinen Markt, seine Logik und seine Grenzen. Kein Roboter hängt von einem anderen ab: Er läuft allein oder mit den anderen auf demselben Server.",
+        blog_title: "Ankündigung", blog_date: "November 2026",
+        blog_post_title: "Fünf Roboter, ein Dashboard",
+        blog_post_text: "DONKO stellt fünf automatische Trading-Roboter vor: DONKO SYNTIX für die SyntX-Indizes von Weltrade, DONKO GOLD für Gold, DONKO BITCOIN für Bitcoin, DONKO GOLBIT für Gold und Bitcoin sowie DONKO SYGOBI, das alle drei Märkte abdeckt. Jeder hat schriftliche Regeln, veröffentlichte Grenzen und ein eigenes Dashboard auf dieser Seite.",
+        blog_post_warn: "Es wird kein Gewinn garantiert. Die Strategien sind noch nicht durch einen Backtest validiert. Trading birgt das Risiko eines Kapitalverlusts." },
+};
+for (var lx in V4) { Object.assign(window.SYNTIX_I18N[lx], V4[lx]); }

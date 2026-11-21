@@ -3,11 +3,12 @@
    Le cache ne sert qu'en secours, quand le réseau est coupé.
    Le nom du cache change à chaque version : les anciens fichiers sont supprimés.
    Les réponses de l'API (données de trading) ne sont jamais mises en cache. */
-const CACHE = "donko-syntix-shell-v4";
+const CACHE = "donko-syntix-shell-v5";
 const SHELL = [
   "./index.html", "./manifest.json",
-  "./site.css", "./i18n.js", "./app.js",
-  "./donko.png", "./icon-192.png", "./icon-512.png",
+  "./site.css", "./i18n.js", "./app.js", "./robots.js",
+  "./donko.png", "./icon-192.png", "./icon-512.png", "./favicon-64.png",
+  "./robots-group.jpg", "./robot-syntix.jpg", "./robot-gold.jpg", "./robot-bitcoin.jpg", "./robot-golbit.jpg", "./robot-sygobi.jpg",
 ];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));

@@ -361,3 +361,28 @@ body.private .eye-btn .slash { display: inline; }
 /* Logo du tableau de bord : illustration carrée, sans recadrage */
 .bot { width: 96px; height: 96px; padding: 0; overflow: hidden; border-radius: 16px; }
 .bot-art { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ===== Logo d'accueil : ROBOT TRADING, juste sous l'avertissement ===== */
+.brand-hero { display: flex; justify-content: center; padding: 22px 16px 6px; }
+.brand-hero img { width: min(180px, 46vw); height: auto; border-radius: 22px; box-shadow: 0 0 30px rgba(232,196,104,.18); }
+
+/* ===== Onglets des robots dans le tableau de bord ===== */
+.robot-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.robot-tabs::-webkit-scrollbar { display: none; }
+.robot-tab { flex: 0 0 auto; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--text-dim); font-family: inherit; font-weight: 600; cursor: pointer; }
+.robot-tab.active { background: var(--gold); color: #1a1406; border-color: var(--gold); }
+.robot-title { font-size: 1rem; color: var(--gold); margin: 10px 0 0; }
+
+/* ===== Section Robots ===== */
+.robots-group { display: block; width: 100%; height: auto; border-radius: 18px; margin: 18px 0 24px; border: 1px solid var(--line); }
+.robots-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.robot-card img { width: 100%; height: auto; border-radius: 14px; display: block; margin-bottom: 12px; }
+.robot-card h3 { color: var(--gold); }
+.robot-card h4 { margin: 14px 0 6px; font-size: .95rem; }
+.robot-card ul { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: .92rem; }
+.robot-card li { margin-bottom: 4px; }
+.robot-status { color: var(--gold); font-weight: 600; }
+
+/* ===== Blog : affiche au format réseau social ===== */
+.poster { width: 100%; max-width: 360px; height: auto; border-radius: 16px; justify-self: center; border: 1px solid var(--line); }

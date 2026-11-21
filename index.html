@@ -4,8 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07080b">
-<meta name="description" content="DONKO SYNTIX : robot de trading des indices SyntX de Weltrade. Résultats, méthode et alertes. Aucun gain garanti.">
-<title>DONKO SYNTIX</title>
+<meta name="description" content="ROBOT TRADING · DONKO : 5 robots de trading automatiques (SyntX, or, Bitcoin, GOLBIT, SYGOBI). Méthode écrite, limites détaillées. Aucun gain garanti.">
+<link rel="canonical" href="https://donko-dev.github.io/donkoquantsyntix/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ROBOT TRADING · DONKO">
+<meta property="og:description" content="5 robots de trading automatiques, méthode écrite, limites détaillées. Aucun gain garanti.">
+<meta property="og:url" content="https://donko-dev.github.io/donkoquantsyntix/">
+<meta property="og:image" content="https://donko-dev.github.io/donkoquantsyntix/poster-social.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"ROBOT TRADING · DONKO","url":"https://donko-dev.github.io/donkoquantsyntix/","inLanguage":["fr","en","de"]}</script>
+<title>ROBOT TRADING · DONKO</title>
+<link rel="icon" href="favicon-64.png" sizes="64x64">
 <link rel="icon" href="donko.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
@@ -48,6 +57,8 @@
       <ul>
         <li><a href="#accueil" data-nav="accueil" data-i18n="nav_home"></a></li>
         <li><a href="#tableau" data-nav="tableau" data-i18n="nav_dashboard"></a></li>
+        <li><a href="#robots" data-nav="robots" data-i18n="nav_robots"></a></li>
+        <li><a href="#blog" data-nav="blog" data-i18n="nav_blog"></a></li>
         <li><a href="#statistiques" data-nav="statistiques" data-i18n="nav_stats"></a></li>
         <li><a href="#agenda" data-nav="agenda" data-i18n="nav_agenda"></a></li>
         <li><a href="#indices" data-nav="indices" data-i18n="nav_indices"></a></li>
@@ -63,6 +74,10 @@
 </header>
 
 <div class="disclaimer-bar" data-i18n="disclaimer"></div>
+
+<div class="brand-hero">
+  <img src="donko.png" alt="ROBOT TRADING · DONKO" width="180" height="180">
+</div>
 
 <main>
 
@@ -99,9 +114,11 @@
       </div>
       <p class="small muted"><span data-i18n="updated"></span> : <span id="updated" data-i18n="never"></span></p>
 
+      <div id="robot-tabs" class="robot-tabs" role="tablist" aria-label="Robots"></div>
+      <h2 id="robot-title" class="robot-title"></h2>
       <div class="account-card card" style="margin-top:14px;">
         <div class="account-head">
-          <div class="bot"><img src="donko-robot.jpg" alt="DONKO SYNTIX" class="bot-art"></div>
+          <div class="bot"><img id="acc-img" src="robot-syntix.jpg" alt="" class="bot-art"></div>
           <div class="account-meta">
             <div class="kpi-label" data-i18n="acc_title"></div>
             <div class="account-line"><span class="muted small" data-i18n="acc_broker"></span> <strong id="acc-broker">—</strong></div>
@@ -213,6 +230,28 @@
           <tbody id="journal-body"><tr><td colspan="6" class="muted" data-i18n="journal_none"></td></tr></tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <section id="robots">
+    <div class="wrap">
+      <h2 data-i18n="robots_title"></h2>
+      <p data-i18n="robots_intro"></p>
+      <img class="robots-group" src="robots-group.jpg" alt="Les 5 robots DONKO : SYNTIX, GOLD, BITCOIN, GOLBIT et SYGOBI" width="1200" height="800" loading="lazy">
+      <div id="robots-grid" class="robots-grid"></div>
+    </div>
+  </section>
+
+  <section id="blog">
+    <div class="wrap grid grid-2" style="gap:24px;align-items:center;">
+      <div>
+        <h2 data-i18n="blog_title"></h2>
+        <p class="small muted" data-i18n="blog_date"></p>
+        <h3 data-i18n="blog_post_title"></h3>
+        <p data-i18n="blog_post_text"></p>
+        <p class="small muted" data-i18n="blog_post_warn"></p>
+      </div>
+      <img class="poster" src="poster-social.jpg" alt="Affiche : les 5 robots DONKO, automated trading" width="1080" height="1920" loading="lazy">
     </div>
   </section>
 
@@ -377,6 +416,7 @@
 </nav>
 
 <script src="i18n.js"></script>
+<script src="robots.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

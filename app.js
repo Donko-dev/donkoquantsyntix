@@ -18,7 +18,7 @@
               rateDate: "syntix_rate_date", url: "syntix_api_url", token: "syntix_api_token",
               seen: "syntix_seen_events", favs: "syntix_favs", priv: "syntix_private",
               lock: "syntix_lock", hiddenAt: "syntix_hidden_at" };
-  var ROBOT = "SYNTIX";
+  var ROBOT_KEY = "syntix_robot";
   var POLL_MS = 30000;
   var XOF_PER_EUR = 655.957;
   var RATE_URL = "https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR";
@@ -29,7 +29,7 @@
   var DEFAULT_FAVS = DEFAULT_INDICES.slice(10);   // les 10 PainX et GainX
   var LOCK_MINUTES = [1, 5, 10, 15, 20, 30, 60];
 
-  var state = { lang: "fr", theme: "dark", ccy: "USD", rateEur: 0.92, rateDate: null,
+  var state = { robot: "SYNTIX", lang: "fr", theme: "dark", ccy: "USD", rateEur: 0.92, rateDate: null,
                 timer: null, firstLoad: true, cal: null, range: null, deferred: null };
   var cache = null;
 
@@ -343,6 +343,65 @@
     });
   }
 
+  /* ---------- Robots : onglets, logo, cartes ---------- */
+  function robotById(id) {
+    var list = window.DONKO_ROBOTS || [];
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return list[0];
+  }
+  function selectRobot(id) {
+    state.robot = robotById(id).id;
+    store(ROBOT_KEY, state.robot);
+    renderRobotHeader();
+    cache = null;
+    $("open-body").textContent = "";
+    fillBody("open-body", [], 5, "open_none");
+    refresh();
+  }
+  function renderRobotHeader() {
+    var r = robotById(state.robot);
+    $("acc-img").setAttribute("src", r.image);
+    $("acc-img").setAttribute("alt", r.name);
+    $("robot-title").textContent = r.name + " · " + r.market;
+    document.querySelectorAll("#robot-tabs [data-robot]").forEach(function (b) {
+      var on = b.getAttribute("data-robot") === state.robot;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+  function renderRobotTabs() {
+    var box = $("robot-tabs"); box.textContent = "";
+    (window.DONKO_ROBOTS || []).forEach(function (r) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "robot-tab"; b.setAttribute("role", "tab");
+      b.setAttribute("data-robot", r.id); b.textContent = r.name.replace("DONKO ", "");
+      b.addEventListener("click", function () { selectRobot(r.id); });
+      box.appendChild(b);
+    });
+    renderRobotHeader();
+  }
+  function renderRobotsGrid() {
+    var box = $("robots-grid"); if (!box) return; box.textContent = "";
+    (window.DONKO_ROBOTS || []).forEach(function (r) {
+      var card = document.createElement("article"); card.className = "robot-card card";
+      var img = document.createElement("img"); img.src = r.image; img.alt = r.name; img.loading = "lazy";
+      var h = document.createElement("h3"); h.textContent = r.name;
+      var m = document.createElement("p"); m.className = "small muted"; m.textContent = r.market + " · " + r.brokerScope;
+      var st = document.createElement("p"); st.className = "small robot-status"; st.textContent = r.status;
+      var story = document.createElement("p"); story.textContent = r.story;
+      var how = document.createElement("h4"); how.textContent = "Fonctionnement";
+      var ul = document.createElement("ul"); r.how.forEach(function (x) { var li = document.createElement("li"); li.textContent = x; ul.appendChild(li); });
+      var lim = document.createElement("h4"); lim.textContent = "Limites";
+      var ul2 = document.createElement("ul"); r.limits.forEach(function (x) { var li = document.createElement("li"); li.textContent = x; ul2.appendChild(li); });
+      var bn = document.createElement("p"); bn.className = "small muted"; bn.textContent = r.brokerNote;
+      var go = document.createElement("button"); go.type = "button"; go.className = "btn ghost"; go.textContent = "Voir son tableau de bord";
+      go.addEventListener("click", function () { selectRobot(r.id); location.hash = "#tableau"; });
+      card.appendChild(img); card.appendChild(h); card.appendChild(m); card.appendChild(st);
+      card.appendChild(story); card.appendChild(how); card.appendChild(ul); card.appendChild(lim); card.appendChild(ul2);
+      card.appendChild(bn); card.appendChild(go); box.appendChild(card);
+    });
+  }
+
   /* ---------- Rendu ---------- */
   function setConn(kind, text) {
     var pill = $("conn-pill");
@@ -652,10 +711,10 @@
       return Promise.resolve();
     }
     return Promise.all([
-      apiGet("/api/robots/" + ROBOT + "/stats"),
-      apiGet("/api/robots/" + ROBOT + "/open"),
-      apiGet("/api/robots/" + ROBOT + "/journal?limit=200"),
-      apiGet("/api/robots/" + ROBOT + "/account").catch(function () { return { accounts: [] }; }),
+      apiGet("/api/robots/" + state.robot + "/stats"),
+      apiGet("/api/robots/" + state.robot + "/open"),
+      apiGet("/api/robots/" + state.robot + "/journal?limit=200"),
+      apiGet("/api/robots/" + state.robot + "/account").catch(function () { return { accounts: [] }; }),
     ]).then(function (res) {
       cache = { stats: res[0].statistics, open: res[1].open || [], events: res[2].events || [], accounts: res[3].accounts || [] };
       setConn("ok", t("status_connected"));
@@ -751,6 +810,8 @@
     setTheme(state.theme);
     setCcy(state.ccy);
     applyTranslations();
+    state.robot = robotById(load(ROBOT_KEY) || "SYNTIX").id;
+    renderRobotTabs(); renderRobotsGrid();
     initDisplay(); initNav(); initConnection(); initSecurity(); initCalendar(); initMenus(); initBacktest();
     openConnectionIfRequested();
     window.addEventListener("hashchange", openConnectionIfRequested);
